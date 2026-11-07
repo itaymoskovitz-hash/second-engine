@@ -56,6 +56,6 @@ out = ('<!doctype html>\n<html lang="he" dir="rtl">\n<head>\n<meta charset="utf-
        + head.replace('<meta name="claude:viewport-fit-sides" content="cover">\n', '') +
        '\n<style>html,body{margin:0}:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}</style>\n'
        '</head>\n<body>\n' + body + '\n</body>\n</html>\n')
-(ROOT / 'site').mkdir(exist_ok=True)
-(ROOT / 'site/index.html').write_text(out)
+(ROOT / 'docs').mkdir(exist_ok=True)
+(ROOT / 'docs/index.html').write_text(out)
 print('built', len(out), 'bytes')
