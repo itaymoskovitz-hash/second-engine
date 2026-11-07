@@ -878,11 +878,11 @@ input:focus-visible,textarea:focus-visible{outline:2px solid var(--m1);outline-o
       <div class="row"><span>כניסה לחשבון<small id="pfLogin"></small></span><span class="pill ok">פעיל</span></div>
       <div class="row"><span>סיסמה<small>שינוי הסיסמה לחשבון</small></span><button type="button" class="pill" id="sePwBtn">שינוי</button></div>
       <form class="se-pw" id="sePwForm" hidden novalidate><input type="password" id="sePwNew" autocomplete="new-password" placeholder="סיסמה חדשה" aria-label="סיסמה חדשה"><button class="btn primary" type="submit">שמירה</button><small id="sePwMsg" role="status"></small></form>
-      <div class="row"><span>אימות דו-שלבי<small id="se2faState">קוד מאפליקציית אימות בכל כניסה</small></span><span class="pill ok">חובה</span></div>
+      <div class="row"><span>אימות דו-שלבי<small id="se2faState">קוד מאפליקציית אימות בכל מכשיר חדש</small></span><button type="button" class="pill" id="se2faBtn">…</button></div>
       <div class="row"><span>מכשירים מחוברים<small>ניתוק מרחוק של כל שאר המכשירים</small></span><button type="button" class="pill" id="seOthers">נתק אחרים</button></div>
       <div class="row"><span>יציאה<small>יציאה מהחשבון במכשיר הזה</small></span><button type="button" class="pill" id="seSignOut">התנתק</button></div>
     </div>
-    <p class="note">הנתונים שלך שמורים בשרת מאובטח באירופה. כל גישה אליהם דורשת כניסה עם אימות דו-שלבי, ורק אתה יכול לקרוא אותם.</p>
+    <p class="note">הנתונים שלך שמורים בשרת מאובטח באירופה, ורק אתה יכול לקרוא אותם. עם אימות דו-שלבי, כניסה ממכשיר חדש תדרוש גם קוד מהטלפון.</p>
   </section>
 
   <section class="sec" aria-labelledby="pfH4">
@@ -962,7 +962,7 @@ html.se-locked, html.se-locked body{overflow:hidden}
 .se-gate input[type=email],.se-gate input[type=password]{direction:ltr;text-align:right}
 .se-gate input:focus-visible{outline:2px solid #7FB4C6;outline-offset:1px}
 .se-gate .se-code{font-family:var(--f-num);font-size:28px!important;letter-spacing:.4em;text-align:center!important;direction:ltr;padding:12px!important}
-.se-gate .btn{width:100%}
+.se-gate .btn{width:100%;text-align:center;text-decoration:none;display:block}
 .se-gate .btn:disabled{opacity:.6;cursor:default}
 .se-or{display:flex;align-items:center;gap:12px;color:var(--dim);font-size:12px;letter-spacing:.08em}
 .se-or::before,.se-or::after{content:"";flex:1;height:1px;background:var(--line)}
@@ -1009,7 +1009,7 @@ button.pill:hover{color:var(--platinum);border-color:var(--steel)}
 
     <section class="se-p" data-p="up" hidden>
       <h1>מנוע שני, מתחילים</h1>
-      <p class="se-lead">חשבון אחד לתוכנית, לאימונים ולמאמן. אחרי האישור במייל נגדיר אימות דו-שלבי.</p>
+      <p class="se-lead">חשבון אחד לתוכנית, לאימונים ולמאמן.</p>
       <form novalidate>
         <label>שם פרטי<input type="text" id="seUpName" autocomplete="given-name"></label>
         <label>מייל<input type="email" id="seUpEmail" autocomplete="username" required></label>
@@ -1023,7 +1023,7 @@ button.pill:hover{color:var(--platinum);border-color:var(--steel)}
 
     <section class="se-p" data-p="reset" hidden>
       <h1>סיסמה חדשה</h1>
-      <p class="se-lead">נשלח קישור למייל, ובו תבחר סיסמה חדשה. אחריה נבקש את קוד האימות.</p>
+      <p class="se-lead">נשלח קישור למייל, ובו תבחר סיסמה חדשה.</p>
       <form novalidate>
         <label>מייל<input type="email" id="seResetEmail" autocomplete="username" required></label>
         <button class="btn primary se-primary" type="submit">שלחו קישור</button>
@@ -1041,6 +1041,7 @@ button.pill:hover{color:var(--platinum);border-color:var(--steel)}
     <section class="se-p" data-p="enroll" hidden>
       <h1>שכבת הגנה שנייה</h1>
       <p class="se-lead">כל כניסה ממכשיר חדש תדרוש גם קוד מתחלף מהטלפון שלך. זה לוקח דקה, פעם אחת.</p>
+      <a class="btn primary" id="seAddApp" hidden href="#">הוסף לאפליקציית האימות</a>
       <ol class="se-steps">
         <li>פתח אפליקציית אימות: Google Authenticator, Microsoft Authenticator או 1Password.</li>
         <li>סרוק את הקוד, או הקלד את המפתח שמתחתיו.</li>
@@ -1052,7 +1053,7 @@ button.pill:hover{color:var(--platinum);border-color:var(--steel)}
         <label>קוד מהאפליקציה<input type="text" class="se-code" id="seEnrollCode" inputmode="numeric" autocomplete="one-time-code" maxlength="7" required></label>
         <button class="btn primary se-primary" type="submit">הפעל אימות דו-שלבי</button>
       </form>
-      <p class="se-foot"><button type="button" class="se-link se-out">יציאה מהחשבון</button></p>
+      <p class="se-foot"><button type="button" class="se-link" id="seEnrollCancel">ביטול</button></p>
     </section>
 
     <section class="se-p" data-p="verify" hidden>
@@ -1356,14 +1357,17 @@ async function route(){
   if (!session){ panel(G.mode === 'up' || G.mode === 'sent' || G.mode === 'reset' ? G.mode : 'in'); return; }
   const {data: aal, error} = await sb.auth.mfa.getAuthenticatorAssuranceLevel();
   if (error){ err(heErr(error)); return; }
-  if (aal.currentLevel === 'aal2'){ if (RECOVERY){ panel('newpass'); return; } enter(session); return; }
-  const {data: f} = await sb.auth.mfa.listFactors();
-  const v = (f && f.totp || []).find(x => x.status === 'verified');
-  if (v){ G.factor = v.id; panel('verify'); return; }
-  await startEnroll();
+  if (aal.currentLevel !== 'aal2'){
+    const {data: f} = await sb.auth.mfa.listFactors();
+    const v = (f && f.totp || []).find(x => x.status === 'verified');
+    if (v){ G.factor = v.id; panel('verify'); return; }
+  }
+  if (RECOVERY){ panel('newpass'); return; }
+  enter(session);
 }
+/* optional 2FA, started from the profile */
 async function startEnroll(){
-  panel('enroll'); $g('seQr').innerHTML = '<span class="se-dim">מכין קוד…</span>';
+  panel('enroll'); $g('seQr').innerHTML = '<span class="se-dim">מכין קוד…</span>'; $g('seAddApp').hidden = true;
   const {data: f} = await sb.auth.mfa.listFactors();
   for (const x of (f && f.all || []).filter(x => x.status !== 'verified')) await sb.auth.mfa.unenroll({factorId: x.id});
   const {data, error} = await sb.auth.mfa.enroll({factorType:'totp', friendlyName:'Second Engine'});
@@ -1375,6 +1379,11 @@ async function startEnroll(){
   img.src = svg ? 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg) : qr;
   $g('seQr').replaceChildren(img);
   $g('seSecret').textContent = data.totp.secret.replace(/(.{4})/g, '$1 ').trim();
+  if (data.totp.uri && matchMedia('(pointer:coarse)').matches){ $g('seAddApp').href = data.totp.uri; $g('seAddApp').hidden = false; }
+}
+async function cancelEnroll(){
+  try { if (G.enrollId) await sb.auth.mfa.unenroll({factorId: G.enrollId}); } catch(e){}
+  G.enrollId = null; $g('seGate').hidden = true; document.documentElement.classList.remove('se-locked');
 }
 function enter(session){
   SESSION = session; UID = session.user.id;
@@ -1397,7 +1406,7 @@ function wireGate(){
   q('[data-p="up"] form').onsubmit = e => { e.preventDefault(); busy(q('[data-p="up"] .se-primary'), async () => {
     const pw = $g('seNewPass').value; if (pw.length < 10 || !/\d/.test(pw) || !/\p{L}/u.test(pw)) throw {message:'password too short'};
     const {data, error} = await sb.auth.signUp({email: $g('seUpEmail').value.trim(), password: pw, options:{emailRedirectTo: redirect(), data:{full_name: $g('seUpName').value.trim()}}}); if (error) throw error;
-    if (!data.session){ $g('seSentTo').textContent = $g('seUpEmail').value.trim(); $g('seSentWhat').textContent = 'לחץ על הקישור במייל כדי לאשר את החשבון, ואז נגדיר אימות דו-שלבי.'; panel('sent'); } }); };
+    if (!data.session){ $g('seSentTo').textContent = $g('seUpEmail').value.trim(); $g('seSentWhat').textContent = 'לחץ על הקישור במייל כדי לאשר את החשבון ולהיכנס.'; panel('sent'); } }); };
   q('[data-p="reset"] form').onsubmit = e => { e.preventDefault(); busy(q('[data-p="reset"] .se-primary'), async () => {
     const em = $g('seResetEmail').value.trim(); const {error} = await sb.auth.resetPasswordForEmail(em, {redirectTo: redirect()}); if (error) throw error;
     $g('seSentTo').textContent = em; $g('seSentWhat').textContent = 'שלחנו קישור לבחירת סיסמה חדשה.'; panel('sent'); }); };
@@ -1405,7 +1414,9 @@ function wireGate(){
     const pw = $g('seSetPass').value; if (pw.length < 10 || !/\d/.test(pw) || !/\p{L}/u.test(pw)) throw {message:'password too short'};
     const {error} = await sb.auth.updateUser({password: pw}); if (error) throw error; RECOVERY = false; await route(); }); };
   q('[data-p="enroll"] form').onsubmit = e => { e.preventDefault(); busy(q('[data-p="enroll"] .se-primary'), async () => {
-    const {error} = await sb.auth.mfa.challengeAndVerify({factorId: G.enrollId, code: $g('seEnrollCode').value.replace(/\s/g,'')}); if (error) throw error; await route(); }); };
+    const {error} = await sb.auth.mfa.challengeAndVerify({factorId: G.enrollId, code: $g('seEnrollCode').value.replace(/\s/g,'')}); if (error) throw error;
+    G.enrollId = null; $g('seEnrollCode').value = ''; await route(); wireProfile(); }); };
+  $g('seEnrollCancel').onclick = cancelEnroll;
   q('[data-p="verify"] form').onsubmit = e => { e.preventDefault(); busy(q('[data-p="verify"] .se-primary'), async () => {
     const {error} = await sb.auth.mfa.challengeAndVerify({factorId: G.factor, code: $g('seCode').value.replace(/\s/g,'')}); if (error) throw error; await route(); }); };
   document.querySelectorAll('#seGate [data-go]').forEach(b => b.onclick = () => panel(b.dataset.go));
@@ -1426,7 +1437,18 @@ async function wireProfile(){
   const set = (id, t) => { const el = $g(id); if (el) el.textContent = t; };
   set('pfLogin', (u.email || '') + ' · ' + (prov.includes('google') ? 'Google' : 'מייל וסיסמה'));
   const {data: f} = await sb.auth.mfa.listFactors(); const n = (f && f.totp || []).filter(x => x.status === 'verified').length;
-  set('se2faState', n ? 'פעיל · אפליקציית אימות' : 'לא מוגדר');
+  set('se2faState', n ? 'פעיל · קוד מאפליקציית אימות בכל מכשיר חדש' : 'כבוי · מומלץ להפעיל להגנה נוספת');
+  const tb = $g('se2faBtn');
+  if (tb){
+    tb.textContent = n ? 'כבה' : 'הפעל'; tb.classList.toggle('ok', !n); tb.disabled = false; let armed = false;
+    tb.onclick = async () => {
+      if (!n){ startEnroll(); return; }
+      if (!armed){ armed = true; tb.textContent = 'לכבות? לחץ שוב'; setTimeout(() => { if (armed){ armed = false; tb.textContent = 'כבה'; } }, 4000); return; }
+      tb.disabled = true; tb.textContent = '…';
+      for (const x of (f && f.totp || [])) { const {error} = await sb.auth.mfa.unenroll({factorId: x.id}); if (error){ set('se2faState', heErr(error)); break; } }
+      await sb.auth.refreshSession(); wireProfile();
+    };
+  }
   const pwBtn = $g('sePwBtn'), pwForm = $g('sePwForm');
   if (pwBtn) pwBtn.onclick = () => { pwForm.hidden = !pwForm.hidden; if (!pwForm.hidden) $g('sePwNew').focus(); };
   if (pwForm) pwForm.onsubmit = async e => {

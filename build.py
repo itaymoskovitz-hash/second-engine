@@ -24,12 +24,12 @@ body = rep(body, '<span class="pill ok">פעיל</span></div>\n      <div class=
   '<span class="pill ok">פעיל</span></div>\n      <div class="row"><span>סיסמה<small>שינוי הסיסמה לחשבון</small></span><button type="button" class="pill" id="sePwBtn">שינוי</button></div>\n'
   '      <form class="se-pw" id="sePwForm" hidden novalidate><input type="password" id="sePwNew" autocomplete="new-password" placeholder="סיסמה חדשה" aria-label="סיסמה חדשה"><button class="btn primary" type="submit">שמירה</button><small id="sePwMsg" role="status"></small></form>')
 body = rep(body, '<span>אימות דו-שלבי<small>קוד מאפליקציית אימות בכל כניסה ממכשיר חדש</small></span><span class="pill">בגרסה עם השרת</span>',
-  '<span>אימות דו-שלבי<small id="se2faState">קוד מאפליקציית אימות בכל כניסה</small></span><span class="pill ok">חובה</span>')
+  '<span>אימות דו-שלבי<small id="se2faState">קוד מאפליקציית אימות בכל מכשיר חדש</small></span><button type="button" class="pill" id="se2faBtn">…</button>')
 body = rep(body, '<span>מכשירים מחוברים<small>ניתוק מרחוק של טלפון או מחשב</small></span><span class="pill">בגרסה עם השרת</span></div>',
   '<span>מכשירים מחוברים<small>ניתוק מרחוק של כל שאר המכשירים</small></span><button type="button" class="pill" id="seOthers">נתק אחרים</button></div>\n'
   '      <div class="row"><span>יציאה<small>יציאה מהחשבון במכשיר הזה</small></span><button type="button" class="pill" id="seSignOut">התנתק</button></div>')
 body = rep(body, 'הנתונים שלך שמורים באופן פרטי ורק אתה יכול לקרוא אותם. סיסמה ואימות דו-שלבי ייכנסו כשהאפליקציה תעבור לשרת משלה לקראת ההשקה.',
-  'הנתונים שלך שמורים בשרת מאובטח באירופה. כל גישה אליהם דורשת כניסה עם אימות דו-שלבי, ורק אתה יכול לקרוא אותם.')
+  'הנתונים שלך שמורים בשרת מאובטח באירופה, ורק אתה יכול לקרוא אותם. עם אימות דו-שלבי, כניסה ממכשיר חדש תדרוש גם קוד מהטלפון.')
 body = rep(body, 'כרגע דרך חשבון Claude שלך', '')
 
 # calendar messages for the standalone build

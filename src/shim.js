@@ -265,14 +265,17 @@ async function route(){
   if (!session){ panel(G.mode === 'up' || G.mode === 'sent' || G.mode === 'reset' ? G.mode : 'in'); return; }
   const {data: aal, error} = await sb.auth.mfa.getAuthenticatorAssuranceLevel();
   if (error){ err(heErr(error)); return; }
-  if (aal.currentLevel === 'aal2'){ if (RECOVERY){ panel('newpass'); return; } enter(session); return; }
-  const {data: f} = await sb.auth.mfa.listFactors();
-  const v = (f && f.totp || []).find(x => x.status === 'verified');
-  if (v){ G.factor = v.id; panel('verify'); return; }
-  await startEnroll();
+  if (aal.currentLevel !== 'aal2'){
+    const {data: f} = await sb.auth.mfa.listFactors();
+    const v = (f && f.totp || []).find(x => x.status === 'verified');
+    if (v){ G.factor = v.id; panel('verify'); return; }
+  }
+  if (RECOVERY){ panel('newpass'); return; }
+  enter(session);
 }
+/* optional 2FA, started from the profile */
 async function startEnroll(){
-  panel('enroll'); $g('seQr').innerHTML = '<span class="se-dim">מכין קוד…</span>';
+  panel('enroll'); $g('seQr').innerHTML = '<span class="se-dim">מכין קוד…</span>'; $g('seAddApp').hidden = true;
   const {data: f} = await sb.auth.mfa.listFactors();
   for (const x of (f && f.all || []).filter(x => x.status !== 'verified')) await sb.auth.mfa.unenroll({factorId: x.id});
   const {data, error} = await sb.auth.mfa.enroll({factorType:'totp', friendlyName:'Second Engine'});
@@ -284,6 +287,11 @@ async function startEnroll(){
   img.src = svg ? 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg) : qr;
   $g('seQr').replaceChildren(img);
   $g('seSecret').textContent = data.totp.secret.replace(/(.{4})/g, '$1 ').trim();
+  if (data.totp.uri && matchMedia('(pointer:coarse)').matches){ $g('seAddApp').href = data.totp.uri; $g('seAddApp').hidden = false; }
+}
+async function cancelEnroll(){
+  try { if (G.enrollId) await sb.auth.mfa.unenroll({factorId: G.enrollId}); } catch(e){}
+  G.enrollId = null; $g('seGate').hidden = true; document.documentElement.classList.remove('se-locked');
 }
 function enter(session){
   SESSION = session; UID = session.user.id;
@@ -306,7 +314,7 @@ function wireGate(){
   q('[data-p="up"] form').onsubmit = e => { e.preventDefault(); busy(q('[data-p="up"] .se-primary'), async () => {
     const pw = $g('seNewPass').value; if (pw.length < 10 || !/\d/.test(pw) || !/\p{L}/u.test(pw)) throw {message:'password too short'};
     const {data, error} = await sb.auth.signUp({email: $g('seUpEmail').value.trim(), password: pw, options:{emailRedirectTo: redirect(), data:{full_name: $g('seUpName').value.trim()}}}); if (error) throw error;
-    if (!data.session){ $g('seSentTo').textContent = $g('seUpEmail').value.trim(); $g('seSentWhat').textContent = 'לחץ על הקישור במייל כדי לאשר את החשבון, ואז נגדיר אימות דו-שלבי.'; panel('sent'); } }); };
+    if (!data.session){ $g('seSentTo').textContent = $g('seUpEmail').value.trim(); $g('seSentWhat').textContent = 'לחץ על הקישור במייל כדי לאשר את החשבון ולהיכנס.'; panel('sent'); } }); };
   q('[data-p="reset"] form').onsubmit = e => { e.preventDefault(); busy(q('[data-p="reset"] .se-primary'), async () => {
     const em = $g('seResetEmail').value.trim(); const {error} = await sb.auth.resetPasswordForEmail(em, {redirectTo: redirect()}); if (error) throw error;
     $g('seSentTo').textContent = em; $g('seSentWhat').textContent = 'שלחנו קישור לבחירת סיסמה חדשה.'; panel('sent'); }); };
@@ -314,7 +322,9 @@ function wireGate(){
     const pw = $g('seSetPass').value; if (pw.length < 10 || !/\d/.test(pw) || !/\p{L}/u.test(pw)) throw {message:'password too short'};
     const {error} = await sb.auth.updateUser({password: pw}); if (error) throw error; RECOVERY = false; await route(); }); };
   q('[data-p="enroll"] form').onsubmit = e => { e.preventDefault(); busy(q('[data-p="enroll"] .se-primary'), async () => {
-    const {error} = await sb.auth.mfa.challengeAndVerify({factorId: G.enrollId, code: $g('seEnrollCode').value.replace(/\s/g,'')}); if (error) throw error; await route(); }); };
+    const {error} = await sb.auth.mfa.challengeAndVerify({factorId: G.enrollId, code: $g('seEnrollCode').value.replace(/\s/g,'')}); if (error) throw error;
+    G.enrollId = null; $g('seEnrollCode').value = ''; await route(); wireProfile(); }); };
+  $g('seEnrollCancel').onclick = cancelEnroll;
   q('[data-p="verify"] form').onsubmit = e => { e.preventDefault(); busy(q('[data-p="verify"] .se-primary'), async () => {
     const {error} = await sb.auth.mfa.challengeAndVerify({factorId: G.factor, code: $g('seCode').value.replace(/\s/g,'')}); if (error) throw error; await route(); }); };
   document.querySelectorAll('#seGate [data-go]').forEach(b => b.onclick = () => panel(b.dataset.go));
@@ -335,7 +345,18 @@ async function wireProfile(){
   const set = (id, t) => { const el = $g(id); if (el) el.textContent = t; };
   set('pfLogin', (u.email || '') + ' · ' + (prov.includes('google') ? 'Google' : 'מייל וסיסמה'));
   const {data: f} = await sb.auth.mfa.listFactors(); const n = (f && f.totp || []).filter(x => x.status === 'verified').length;
-  set('se2faState', n ? 'פעיל · אפליקציית אימות' : 'לא מוגדר');
+  set('se2faState', n ? 'פעיל · קוד מאפליקציית אימות בכל מכשיר חדש' : 'כבוי · מומלץ להפעיל להגנה נוספת');
+  const tb = $g('se2faBtn');
+  if (tb){
+    tb.textContent = n ? 'כבה' : 'הפעל'; tb.classList.toggle('ok', !n); tb.disabled = false; let armed = false;
+    tb.onclick = async () => {
+      if (!n){ startEnroll(); return; }
+      if (!armed){ armed = true; tb.textContent = 'לכבות? לחץ שוב'; setTimeout(() => { if (armed){ armed = false; tb.textContent = 'כבה'; } }, 4000); return; }
+      tb.disabled = true; tb.textContent = '…';
+      for (const x of (f && f.totp || [])) { const {error} = await sb.auth.mfa.unenroll({factorId: x.id}); if (error){ set('se2faState', heErr(error)); break; } }
+      await sb.auth.refreshSession(); wireProfile();
+    };
+  }
   const pwBtn = $g('sePwBtn'), pwForm = $g('sePwForm');
   if (pwBtn) pwBtn.onclick = () => { pwForm.hidden = !pwForm.hidden; if (!pwForm.hidden) $g('sePwNew').focus(); };
   if (pwForm) pwForm.onsubmit = async e => {
