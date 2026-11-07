@@ -308,6 +308,7 @@ sb.auth.onAuthStateChange((ev, session) => {
 });
 
 function wireGate(){
+  if (!CFG.googleAuth) document.querySelectorAll('#seGate .se-google, #seGate .se-or').forEach(x => x.hidden = true);
   const q = s => document.querySelector('#seGate ' + s);
   q('[data-p="in"] form').onsubmit = e => { e.preventDefault(); busy(e.submitter || q('[data-p="in"] .se-primary'), async () => {
     const {error} = await sb.auth.signInWithPassword({email: $g('seEmail').value.trim(), password: $g('sePass').value}); if (error) throw error; }); };
