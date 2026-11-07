@@ -278,7 +278,11 @@ async function startEnroll(){
   const {data, error} = await sb.auth.mfa.enroll({factorType:'totp', friendlyName:'Second Engine'});
   if (error){ err(heErr(error)); return; }
   G.enrollId = data.id;
-  $g('seQr').innerHTML = '<img alt="קוד QR לסריקה באפליקציית האימות" src="' + data.totp.qr_code + '">';
+  const qr = String(data.totp.qr_code || ''), img = new Image();
+  img.alt = 'קוד QR לסריקה באפליקציית האימות';
+  const svg = qr.trim().startsWith('<') ? qr : (/^data:image\/svg\+xml[^,]*,\s*</.test(qr) ? qr.slice(qr.indexOf(',') + 1) : null);
+  img.src = svg ? 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg) : qr;
+  $g('seQr').replaceChildren(img);
   $g('seSecret').textContent = data.totp.secret.replace(/(.{4})/g, '$1 ').trim();
 }
 function enter(session){

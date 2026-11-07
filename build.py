@@ -2,7 +2,8 @@
 """Build the standalone Second Engine site (site/index.html) from the claude.ai artifact source."""
 import pathlib, sys
 ROOT = pathlib.Path(__file__).parent
-app = pathlib.Path('/home/claude/coach.html').read_text()
+import os
+app = pathlib.Path(os.environ.get('SE_SRC', '/home/claude/coach.html')).read_text()
 shim = (ROOT / 'src/shim.js').read_text()
 gate = (ROOT / 'src/gate.html').read_text()
 cfg = (ROOT / 'src/config.js').read_text()
