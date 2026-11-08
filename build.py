@@ -3,7 +3,7 @@
 import pathlib, sys
 ROOT = pathlib.Path(__file__).parent
 import os
-app = pathlib.Path(os.environ.get('SE_SRC', '/home/claude/coach.html')).read_text()
+app = pathlib.Path(os.environ.get('SE_SRC', str(ROOT / 'src/app.html'))).read_text()
 shim = (ROOT / 'src/shim.js').read_text()
 gate = (ROOT / 'src/gate.html').read_text()
 cfg = (ROOT / 'src/config.js').read_text()
