@@ -81,3 +81,7 @@ end $$;
 --     headers := jsonb_build_object('Content-Type', 'application/json', 'x-cron-secret',
 --       (select decrypted_secret from vault.decrypted_secrets where name = 'reminders_cron_secret')),
 --     body := '{}'::jsonb) $$);
+
+-- Applied as migration "pg_net_to_extensions_schema" (security advisor: no extensions in public):
+--   drop extension if exists pg_net; create extension pg_net with schema extensions;
+-- The cron job calls net.http_post, which stays in schema net.
