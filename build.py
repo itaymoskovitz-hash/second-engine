@@ -35,7 +35,9 @@ body = rep(body, 'כרגע דרך חשבון Claude שלך', '')
 # profile: install as an app (Android prompt / iPhone instructions)
 body = rep(body, '<div class="row"><span>ייצוא<small>קובץ עם כל הנתונים שלך</small></span><button type="button" class="btn" id="pfExport">הורד קובץ</button></div>',
   '<div class="row"><span>ייצוא<small>קובץ עם כל הנתונים שלך</small></span><button type="button" class="btn" id="pfExport">הורד קובץ</button></div>\n'
-  '      <div class="row"><span>פרטיות ותנאים<small>מה נשמר, איפה, ואיך מוחקים</small></span><span class="se-legal"><a href="privacy.html">פרטיות</a> · <a href="terms.html">תנאים</a></span></div>\n'
+  '      <div class="row"><span>מחיקת החשבון<small>מוחקת את החשבון ואת כל הנתונים, לצמיתות</small></span><button type="button" class="pill" id="seDelBtn">מחק</button></div>\n'
+  '      <form class="se-pw se-del" id="seDelForm" hidden novalidate><small>אי אפשר לשחזר אחרי המחיקה. כדאי להוריד קודם את קובץ הנתונים. כדי לאשר, כתוב <b>מחק</b>:</small><input type="text" id="seDelTxt" autocomplete="off" aria-label="כתוב מחק לאישור"><button class="btn se-danger" type="submit">מחק לצמיתות</button><small id="seDelMsg" role="status"></small></form>\n'
+'      <div class="row"><span>פרטיות ותנאים<small>מה נשמר, איפה, ואיך מוחקים</small></span><span class="se-legal"><a href="privacy.html">פרטיות</a> · <a href="terms.html">תנאים</a></span></div>\n'
 '      <div class="row" id="seInstallRow" hidden><span>התקנה כאפליקציה<small id="seInstallSub">אייקון במסך הבית, מסך מלא, עובד גם בלי אינטרנט</small></span><button type="button" class="pill ok" id="seInstall">התקן</button></div>')
 
 # calendar messages for the standalone build

@@ -51,7 +51,7 @@ PRIV_HE = f"""
 <h2>הזכויות שלך</h2>
 <ul>
 <li><b>ייצוא:</b> בפרופיל ← הנתונים שלי ← הורד קובץ.</li>
-<li><b>מחיקה:</b> שלח מייל ל-<a href="mailto:{MAIL}">{MAIL}</a> מהכתובת של החשבון, והחשבון וכל הנתונים יימחקו תוך 30 יום.</li>
+<li><b>מחיקה:</b> בפרופיל ← הנתונים שלי ← מחיקת החשבון. החשבון וכל הנתונים נמחקים מיד ולצמיתות. אפשר גם לשלוח מייל ל-<a href="mailto:{MAIL}">{MAIL}</a> מהכתובת של החשבון, ונמחק תוך 30 יום.</li>
 <li><b>ביטול הגישה ליומן:</b> בכל רגע, ב-<a href="https://myaccount.google.com/permissions">הרשאות חשבון Google</a>.</li>
 </ul>
 <h2>גיל</h2><p>האפליקציה מיועדת לבני 16 ומעלה.</p>
@@ -80,7 +80,7 @@ PRIV_EN = f"""
 <h2>Your rights</h2>
 <ul>
 <li><b>Export:</b> Profile → My data → Download file.</li>
-<li><b>Deletion:</b> email <a href="mailto:{MAIL}">{MAIL}</a> from your account's address and your account and all data will be deleted within 30 days.</li>
+<li><b>Deletion:</b> Profile → My data → Delete account removes your account and all data immediately and permanently. You can also email <a href="mailto:{MAIL}">{MAIL}</a> from your account's address and we'll delete it within 30 days.</li>
 <li><b>Revoke calendar access:</b> any time, in your <a href="https://myaccount.google.com/permissions">Google Account permissions</a>.</li>
 </ul>
 <h2>Age</h2><p>The app is meant for people 16 and older.</p>
@@ -97,7 +97,7 @@ TERMS_HE = f"""
 <h2>השירות</h2>
 <p>האפליקציה ניתנת כמו שהיא (AS IS), בלי התחייבות לזמינות רציפה או לדיוק. אנחנו עשויים לשנות, להוסיף או להפסיק תכונות. ככל שהחוק מתיר, Second Engine ומפעיליה לא אחראים לנזק או לפציעה שנובעים מהשימוש באפליקציה.</p>
 <h2>סיום</h2>
-<p>אפשר להפסיק להשתמש ולבקש מחיקה בכל זמן. אנחנו רשאים לחסום חשבון שמשתמש לרעה בשירות.</p>
+<p>אפשר להפסיק להשתמש ולמחוק את החשבון מהפרופיל בכל זמן. אנחנו רשאים לחסום חשבון שמשתמש לרעה בשירות.</p>
 <h2>דין</h2><p>על התנאים חל הדין הישראלי.</p>
 <h2>יצירת קשר</h2><p><a href="mailto:{MAIL}">{MAIL}</a></p>
 """
@@ -112,7 +112,7 @@ TERMS_EN = f"""
 <h2>The service</h2>
 <p>The app is provided as is, without any promise of availability or accuracy. We may change, add or remove features. To the extent the law allows, Second Engine and its operators are not liable for damage or injury resulting from using the app.</p>
 <h2>Ending</h2>
-<p>You can stop using the app and ask for deletion at any time. We may block an account that abuses the service.</p>
+<p>You can stop using the app and delete your account from your profile at any time. We may block an account that abuses the service.</p>
 <h2>Law</h2><p>These terms are governed by the laws of Israel.</p>
 <h2>Contact</h2><p><a href="mailto:{MAIL}">{MAIL}</a></p>
 """

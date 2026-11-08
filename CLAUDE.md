@@ -19,6 +19,7 @@ src/gate.html       sign-in screens (email+password, magic link, Google, optiona
 src/config.js       public config: Supabase URL, anon key, googleClientId, googleAuth flag, ai flag
 src/i18n/           English layer: core.js (runtime translator) + dict1-5.py (Hebrew -> English), inject.py merges them into app.html
 build.py            builds docs/index.html from app.html + gate + config + shim
+supabase/migrations/ SQL applied to the live project (record only; apply with the Supabase MCP or dashboard)
 docs/               the published site (index.html, sw.js, icons, manifest.webmanifest, .nojekyll); sw.js and icons are hand-written, not built
 ```
 
@@ -40,6 +41,7 @@ Collections: `coach/days` (per date: checks, all, ready{sleep,legs,energy}, sess
 
 - RLS on `user_docs`: owner-only select/insert/update/delete with `(select auth.uid()) = user_id`.
 - Restrictive policy "mfa if enrolled": a user who has a verified TOTP factor must be at aal2. 2FA is **optional**, turned on from Profile; the owner asked for it not to be mandatory.
+- `delete_my_account()` (security definer, execute for `authenticated` only): deletes the caller's user_docs, ai_usage and auth user; requires aal2 if the caller has a verified TOTP factor. Called from Profile → delete account (type "מחק"/"delete"). SQL in `supabase/migrations/`. The advisor warning about it being callable by signed-in users is intentional.
 - `ai_usage(user_id, day, calls, tokens)` plus `ai_bump(user, limit, tokens)` (security definer, service_role only) enforce 80 AI calls/user/day.
 - Edge function `coach-ai` (verify_jwt on): checks the JWT, requires aal2 only if the user enrolled 2FA, rate-limits, then proxies to `https://api.anthropic.com/v1/messages`. Models: quick → claude-haiku-5-5, default/complex → claude-sonnet-5-5. CORS allows only the GitHub Pages origin and localhost. Secret `ANTHROPIC_API_KEY` (not set yet; the owner deferred it).
 - Never put secrets in this public repo. The anon key in config.js is public by design.

@@ -39,4 +39,13 @@ D = {
 "מה נשמר, איפה, ואיך מוחקים":"What's stored, where, and how to delete it",
 "פרטיות":"Privacy",
 "תנאים":"Terms",
+"מחיקת החשבון":"Delete account",
+"מוחקת את החשבון ואת כל הנתונים, לצמיתות":"Permanently deletes your account and all your data",
+"מחק":"Delete",
+"אי אפשר לשחזר אחרי המחיקה. כדאי להוריד קודם את קובץ הנתונים. כדי לאשר, כתוב":"This can't be undone. Download your data file first. To confirm, type",
+"מחק לצמיתות":"Delete permanently",
+"כתוב \"מחק\" כדי לאשר.":"Type \"delete\" to confirm.",
+"מוחק…":"Deleting…",
+"צריך להיכנס מחדש עם קוד האימות לפני המחיקה.":"Sign in again with your verification code before deleting.",
+"כתוב מחק לאישור":"Type delete to confirm",
 }

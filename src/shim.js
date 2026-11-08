@@ -404,6 +404,18 @@ async function wireProfile(){
     const {error} = await sb.auth.updateUser({password: pw});
     msg.textContent = error ? heErr(error) : 'הסיסמה עודכנה.'; if (!error){ $g('sePwNew').value = ''; setTimeout(() => { pwForm.hidden = true; msg.textContent = ''; }, 1800); }
   };
+  const delBtn = $g('seDelBtn'), delForm = $g('seDelForm');
+  if (delBtn) delBtn.onclick = () => { delForm.hidden = !delForm.hidden; if (!delForm.hidden) $g('seDelTxt').focus(); };
+  if (delForm) delForm.onsubmit = async e => {
+    e.preventDefault(); const msg = $g('seDelMsg'), b = delForm.querySelector('button');
+    if ($g('seDelTxt').value.trim() !== 'מחק' && $g('seDelTxt').value.trim().toLowerCase() !== 'delete'){ msg.textContent = 'כתוב "מחק" כדי לאשר.'; return; }
+    b.disabled = true; msg.textContent = 'מוחק…';
+    const {error} = await sb.rpc('delete_my_account');
+    if (error){ b.disabled = false; msg.textContent = /aal2/.test(error.message || '') ? 'צריך להיכנס מחדש עם קוד האימות לפני המחיקה.' : heErr(error); return; }
+    Object.keys(localStorage).filter(k => /^se\./.test(k)).forEach(k => store.del(k)); try { sessionStorage.clear(); } catch(e){}
+    await sb.auth.signOut({scope:'local'}).catch(() => {});
+    location.replace(redirect());
+  };
   const others = $g('seOthers'); if (others) others.onclick = async () => { const {error} = await sb.auth.signOut({scope:'others'}); others.textContent = error ? 'נכשל' : 'נותקו'; others.disabled = !error; };
   const out = $g('seSignOut'); if (out) out.onclick = () => sb.auth.signOut();
 }
