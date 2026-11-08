@@ -1712,7 +1712,7 @@ function renderHero(){
   $('dateLine').textContent = (isToday ? 'היום · ' : '') + 'יום ' + DAYS[dt.getDay()] + ', ' + dt.getDate() + '.' + (dt.getMonth()+1);
   const wk = weekOf(day.date);
   const totW = weekOf(PLAN[PLAN.length-1].date), nRace = RACES.find(r => r.date >= day.date);
-  $('weekLine').textContent = prefs.planSource === 'app' ? 'שבוע ' + wk + ' מתוך ' + totW + (nRace ? ' · ' + nRace.name : '') : 'שבוע ' + wk + (wk <= 23 ? ' מתוך 23 · מרתון' : ' מתוך 32 · אולטרה');
+  $('weekLine').textContent = PLAN[0].src === 'placeholder' ? '' : 'שבוע ' + wk + ' מתוך ' + totW + (nRace ? ' · ' + nRace.name : '');
   $('modeRow').innerHTML = day.modes.map(m => `<span class="chip" style="--c:${MODES[m].c}">${MODES[m].name}</span>`).join('');
   $('sessTitle').textContent = day.title;
   const runMin = day.km ? Math.round(day.km * 5.9) : 0;
@@ -2492,7 +2492,7 @@ function parseCal(events){
     const date = ev.start && (ev.start.date || (ev.start.dateTime || '').slice(0,10)); if (!date) continue;
     const sm = ev.summary || '';
     const train = /שבוע \d+\s*\|/.test(sm) || /^🏁/.test(sm);
-    if (train){ if (!days[date]) days[date] = parseDay(date, ev); continue; }
+    if (train){ if (!days[date] || /^🏁/.test(sm)) days[date] = parseDay(date, ev); continue; }   // a race wins over a training event on the same day
     if (/^🏅/.test(sm)) continue;
     (other[date] = other[date] || []).push({title: sm.replace(/^[^\p{L}\d]+/u,'').trim() || 'אירוע',
       time: ev.start.dateTime ? ev.start.dateTime.slice(11,16) + '–' + (ev.end && ev.end.dateTime || '').slice(11,16) : 'כל היום', timed: !!ev.start.dateTime});
@@ -2506,6 +2506,10 @@ function applyCalendar(){
   const list = Object.values(days).sort((a,b) => a.date < b.date ? -1 : 1);
   if (list.length < 7){ OTHER = other; CAL.status = 'ok'; renderPlan(); renderSync(); return; }
   PLAN.length = 0; PLAN.push(...list); OTHER = other;
+  /* week 1 starts where the calendar's own "שבוע N" numbering says it does; the earliest week in the window may be partial, so take the earliest candidate */
+  let st = null;
+  for (const p of list){ const m = /שבוע (\d+)\s*\|/.exec(p.sum || ''); if (!m) continue; const d = parse(p.date); d.setDate(d.getDate() - (+m[1] - 1) * 7); const c = iso(d); if (!st || c < st) st = c; }
+  PLAN_START = st || list[0].date;
   CAL.loaded = true; CAL.status = 'ok';
   const races = list.filter(p => p.modes.includes('race')).map(p => ({date: p.date, km: p.km || 0,
     name: p.title.replace(/^יום ה/, '').replace(/!/g, '').replace(/\s*[\d.]+\s*ק"מ/, '').trim() || 'מרוץ'}));
@@ -3135,7 +3139,7 @@ $('fuAnalyze').onclick = async () => {
     'משקל: ' + (w ? w + ' ק"ג' : 'לא ידוע') + '\n' +
     'יעד פחמימות: ' + L0.g[0] + '–' + L0.g[1] + ' ג׳/ק"ג' + (w ? ' = ' + Math.round(L0.g[0]*w) + '–' + Math.round(L0.g[1]*w) + ' ג׳' : '') + '\n' +
     'יעד חלבון: 1.6 ג׳/ק"ג' + (w ? ' = ' + Math.round(1.6*w) + ' ג׳' : '') + ', 4 מנות\n' +
-    'הגבלות: ' + (prefs.diet.map(id => DIETS.find(d => d.id === id).name).join(', ') || 'אין') + '\n' +
+    'הגבלות: ' + (prefs.diet.map(id => (DIETS.find(d => d.id === id) || {}).name).filter(Boolean).join(', ') || 'אין') + '\n' +
     'נאכל: ' + items.map(x => x.meal + ': ' + x.text + ' (' + (x.c === '' ? '?' : x.c) + 'פ, ' + (x.p === '' ? '?' : x.p) + 'ח)').join(' | ') + '\n' +
     'סה"כ ידוע: ' + tc + ' ג׳ פחמימה, ' + tp + ' ג׳ חלבון\n' +
     'אימון מחר: ' + (next ? next.title : 'לא ידוע');
