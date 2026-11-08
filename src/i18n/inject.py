@@ -16,7 +16,8 @@ RULES = r'''[
   [/^יום (ראשון|שני|שלישי|רביעי|חמישי|שישי|שבת)(.*)$/, (m, P) => P('יום ' + m[1]) + P(m[2])],
   [/^מתי ה(.+)\?$/, (m, P) => 'When is the ' + P(m[1]).replace(/^./, c => c.toLowerCase()) + '?'],
   [/^(.+) סט (\d+)$/, (m, P) => P(m[1]) + ' set ' + m[2]],
-  [/^סמן (.+) כבוצע$/, (m, P) => 'Mark ' + P(m[1]) + ' as done']
+  [/^סמן (.+) כבוצע$/, (m, P) => 'Mark ' + P(m[1]) + ' as done'],
+  [/^פתח סטופר רק עבור (.+)$/, (m, P) => 'Open the timer for ' + P(m[1]) + ' only']
 ]'''
 js = 'I18N.load(' + json.dumps(D, ensure_ascii=False, separators=(',', ':')) + ', ' + RULES + ');\n'
 c = open(APP).read()

@@ -100,4 +100,7 @@ D = {
 "תוכנית שנבנתה מ-#":"Plan built on #",
 "בנה מחדש":"Rebuild",
 "ריצה-הליכה # ק\"מ.":"Run-walk # km.",
+"כשעה של אימון. # ג׳ לק״ג שומרים על המאגרים מלאים לאימון הבא. חלבון: כ-# ג׳ לק״ג ביום (# ג׳), מחולק ל-# מנות של כ-# ג׳ לק״ג (# ג׳) כל # שעות.":"About an hour of training. # g/kg keeps your stores full for the next session. Protein: about # g/kg a day (# g), split into # servings of about # g/kg (# g) every # hours.",
+"כשעה של אימון. # ג׳ לק״ג שומרים על המאגרים מלאים לאימון הבא.":"About an hour of training. # g/kg keeps your stores full for the next session.",
+"כ-# ג׳ חלבון (# ג׳) בשעתיים שאחרי. לא חייב שייק: כל ארוחה עם חלבון איכותי עושה את העבודה.":"About # g of protein (# g) in the two hours after. No shake needed: any meal with good protein does the job.",
 }

@@ -64,7 +64,9 @@ Collections: `coach/days` (per date: checks, all, ready{sleep,legs,energy}, sess
 
 ## Testing
 
-There is no network to Supabase from a sandbox. Test the UI with Playwright by stubbing `window.supabase` (a fake createClient: auth + `from()` chain + channel) and routing the CDN script URL to the stub. For app-only checks, inject `window.claude` stubs for sample/mcp. Check: sign-in, optional 2FA enroll/verify, data load, coach tool calls, no `pageerror`s, phone width 390px, and the English mode.
+Automated: `tests/` (Playwright). `cd tests && npm ci && npx playwright test --trace off` (in a sandbox with the preinstalled browser, set `PW_CHROMIUM=/opt/pw-browsers/chromium-*/chrome-linux64/chrome`). It serves `docs/` on localhost:8765 and stubs Supabase (`fixtures/supabase-stub.js`, controlled with localStorage `T_OUT`, `T_SCEN=new`, `T_LANG`), Google Calendar (`fixtures/calendar.json`, 8 weeks from 25.10.2026 plus a race) and the AI function; the clock is fixed at 8.11.2026. Specs: sign-in screen, legal pages, calendar week numbering and event times, English completeness (`I18N.full` must be empty apart from user content), onboarding without AI in both languages, AI-off mode, offline start + outbox, delete account. All at 390px. GitHub Actions (`.github/workflows/tests.yml`) also checks that `docs/` and `src/app.html` match a fresh inject + build.
+
+There is no network to Supabase from a sandbox, so real sign-in, Calendar and email can only be checked by the owner on the live site. Add a spec when you add a feature.
 
 ## Open items
 
