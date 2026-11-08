@@ -66,7 +66,7 @@ There is no network to Supabase from a sandbox. Test the UI with Playwright by s
 
 ## Open items
 
-1. ~~Google~~ Done (Nov 2026): client ID in config.js, `googleAuth: true`, Supabase Google provider on, Calendar API enabled, redirect URLs set. Consent screen is still in Testing mode: only listed test users can sign in. Before launch, submit it for verification (the `calendar.events` scope is sensitive).
+1. ~~Google~~ Done (Nov 2026): client ID in config.js, `googleAuth: true`, Supabase Google provider on, Calendar API enabled, redirect URLs set. Consent screen is **in production** (Nov 2026) with branding, home, privacy and terms links filled in. Sign-in (basic scopes) works for everyone. `calendar.events` is a sensitive scope and is not verified: Calendar connect shows Google's "unverified app" warning and is capped at 100 users for the project's lifetime. Full verification needs an owned domain (and likely a Supabase custom domain, since the sign-in redirect is on supabase.co) plus a demo video.
 2. Anthropic key: not set (the owner has no budget for it yet). `ai: false` in config.js hides every AI entry point (`.no-ai` class from shim.js: coach chat, meal photo/estimate, fuel and workout analysis, AI brief refresh, plan import). The coach tab shows the rule-based `localBrief()` and the week card; onboarding skips "do you have a plan?" and builds one with `generatePlan`. To turn AI on: set the `ANTHROPIC_API_KEY` secret, then `ai: true`, rebuild.
 3. Supabase built-in email is rate-limited; before launch, configure custom SMTP.
 4. Finish the English QA pass (some long sentences still translate in fragments). Translate new strings when adding UI.
