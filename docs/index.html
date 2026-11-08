@@ -2495,12 +2495,12 @@ function parseCal(events){
     if (train){ if (!days[date] || /^🏁/.test(sm)) days[date] = parseDay(date, ev); continue; }   // a race wins over a training event on the same day
     if (/^🏅/.test(sm)) continue;
     (other[date] = other[date] || []).push({title: sm.replace(/^[^\p{L}\d]+/u,'').trim() || 'אירוע',
-      time: ev.start.dateTime ? ev.start.dateTime.slice(11,16) + '–' + (ev.end && ev.end.dateTime || '').slice(11,16) : 'כל היום', timed: !!ev.start.dateTime});
+      time: ev.start.dateTime ? '\u200e' + ev.start.dateTime.slice(11,16) + '\u200e–\u200e' + (ev.end && ev.end.dateTime || '').slice(11,16) : 'כל היום', timed: !!ev.start.dateTime});
   }
   return {days, other};
 }
 function applyCalendar(){
-  const evs = [].concat(CAL.win[0] || [], CAL.win[1] || []);
+  const seen = new Set(), evs = [].concat(CAL.win[0] || [], CAL.win[1] || []).filter(e => !e || !e.id || (seen.has(e.id) ? false : seen.add(e.id)));   // an event that spans the boundary comes back in both windows
   const {days, other} = parseCal(evs);
   if (prefs.planSource === 'app'){ OTHER = other; CAL.status = 'ok'; renderPlan(); renderSync(); return; }
   const list = Object.values(days).sort((a,b) => a.date < b.date ? -1 : 1);
