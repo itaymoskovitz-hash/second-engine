@@ -24,4 +24,8 @@ D = {
 "ריצת התאוששות # ק\"מ":"Recovery run # km",
 "#×# אינטרוולים":"#×# intervals",
 "#×# בקצב מרתון":"#×# at marathon pace",
+"התקנה כאפליקציה":"Install as an app",
+"אייקון במסך הבית, מסך מלא, עובד גם בלי אינטרנט":"Home screen icon, full screen, works offline",
+"התקן":"Install",
+"בספארי: לחץ על כפתור השיתוף ובחר \"הוסף למסך הבית\".":"In Safari: tap Share and choose \"Add to Home Screen\".",
 }

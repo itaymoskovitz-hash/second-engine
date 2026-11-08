@@ -32,6 +32,11 @@ body = rep(body, 'הנתונים שלך שמורים באופן פרטי ורק 
   'הנתונים שלך שמורים בשרת מאובטח באירופה, ורק אתה יכול לקרוא אותם. עם אימות דו-שלבי, כניסה ממכשיר חדש תדרוש גם קוד מהטלפון.')
 body = rep(body, 'כרגע דרך חשבון Claude שלך', '')
 
+# profile: install as an app (Android prompt / iPhone instructions)
+body = rep(body, '<div class="row"><span>ייצוא<small>קובץ עם כל הנתונים שלך</small></span><button type="button" class="btn" id="pfExport">הורד קובץ</button></div>',
+  '<div class="row"><span>ייצוא<small>קובץ עם כל הנתונים שלך</small></span><button type="button" class="btn" id="pfExport">הורד קובץ</button></div>\n'
+  '      <div class="row" id="seInstallRow" hidden><span>התקנה כאפליקציה<small id="seInstallSub">אייקון במסך הבית, מסך מלא, עובד גם בלי אינטרנט</small></span><button type="button" class="pill ok" id="seInstall">התקן</button></div>')
+
 # calendar messages for the standalone build
 body = rep(body, "server_not_connected: 'כדי לטעון את כל התוכנית צריך לחבר את Google Calendar ב-claude.ai, בהגדרות ← Connectors.'",
   "server_not_connected: 'החיבור ל-Google Calendar עוד לא הוגדר בשרת.'")
@@ -52,7 +57,8 @@ title_line = head.split('\n', 1)
 out = ('<!doctype html>\n<html lang="he" dir="rtl">\n<head>\n<meta charset="utf-8">\n'
        '<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">\n'
        '<meta name="theme-color" content="#0E0F11">\n<meta name="referrer" content="strict-origin-when-cross-origin">\n'
-       '<link rel="icon" href="icon.svg" type="image/svg+xml">\n<link rel="manifest" href="manifest.webmanifest">\n'
+       '<meta name="description" content="Second Engine: תוכנית אימונים, יומן ומעקב למי שמשלב ריצה ואימוני כוח. בונה תוכנית לפי מחקר, מתחבר ל-Google Calendar ועובד גם בלי אינטרנט.">\n'
+       '<link rel="icon" href="icon.svg" type="image/svg+xml">\n<link rel="apple-touch-icon" href="apple-touch-icon.png">\n<link rel="manifest" href="manifest.webmanifest">\n'
        '<meta name="apple-mobile-web-app-capable" content="yes">\n<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">\n'
        + head.replace('<meta name="claude:viewport-fit-sides" content="cover">\n', '') +
        '\n<style>html,body{margin:0}:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}</style>\n'

@@ -19,6 +19,26 @@ window.claude = {use(name){ if (!memo[name]) memo[name] = READY.then(() => CAPS[
 const DB = {cache:{}, loading:{}, colL:{}, docL:{}, pending:{}, channel:null};
 const relColl = path => path.split('/').slice(3).join('/') || '_root';
 const key = (c,id) => c + '\u0000' + id;
+/* offline: every loaded collection is mirrored in localStorage, and writes that fail for lack of a connection wait in an outbox */
+const lsColl = c => 'se.db.' + UID + '.' + c, lsOut = () => 'se.outbox.' + UID;
+const offline = e => !navigator.onLine || /fetch|network|load failed|timeout/i.test((e && e.message) || String(e || ''));
+function persist(c){ if (DB.cache[c]) store.set(lsColl(c), JSON.stringify([...DB.cache[c]])); }
+const outbox = () => { try { return JSON.parse(store.get(lsOut()) || '{}'); } catch(e){ return {}; } };
+let flushing = false;
+async function flush(){
+  if (flushing || !UID || !navigator.onLine) return; flushing = true;
+  try {
+    const ob = outbox();
+    for (const k of Object.keys(ob)){
+      const {c, id, next} = ob[k];
+      const {error} = next === null ? await sb.from('user_docs').delete().eq('coll', c).eq('doc_id', id)
+        : await sb.from('user_docs').upsert({user_id: UID, coll: c, doc_id: id, data: next}, {onConflict:'user_id,coll,doc_id'});
+      if (error && offline(error)) break;
+      const cur = outbox(); delete cur[k]; store.set(lsOut(), JSON.stringify(cur));
+    }
+  } catch(e){} finally { flushing = false; }
+}
+addEventListener('online', flush);
 function snapDoc(c, id){ const has = DB.cache[c] && DB.cache[c].has(id); const d = has ? DB.cache[c].get(id) : undefined; return {id, exists: has, data: () => clone(d)}; }
 function emit(c, id){
   (DB.colL[c] || []).forEach(l => { const docs = [...(DB.cache[c] || new Map()).keys()].map(k => snapDoc(c, k)); try { l.cb({docs, size: docs.length, empty: !docs.length}); } catch(e){ console.error(e); } });
@@ -28,14 +48,23 @@ function emit(c, id){
 function loadColl(c){
   if (DB.cache[c]) return Promise.resolve();
   if (!DB.loading[c]) DB.loading[c] = (async () => {
+    const fromDevice = () => { try { const v = JSON.parse(store.get(lsColl(c)) || 'null'); return v ? new Map(v) : null; } catch(e){ return null; } };
     const m = new Map(); let from = 0;
-    for (;;){
-      const {data, error} = await sb.from('user_docs').select('doc_id,data').eq('coll', c).range(from, from + 999);
-      if (error){ DB.loading[c] = null; throw {code:'unavailable', message: error.message}; }
-      data.forEach(r => m.set(r.doc_id, r.data));
-      if (data.length < 1000) break; from += 1000;
+    try {
+      if (!navigator.onLine) throw new Error('offline');
+      for (;;){
+        const {data, error} = await sb.from('user_docs').select('doc_id,data').eq('coll', c).range(from, from + 999);
+        if (error) throw error;
+        data.forEach(r => m.set(r.doc_id, r.data));
+        if (data.length < 1000) break; from += 1000;
+      }
+    } catch(e){
+      const local = offline(e) && fromDevice();
+      if (!local){ DB.loading[c] = null; throw {code:'unavailable', message: e && e.message}; }
+      DB.cache[c] = local; return;
     }
-    DB.cache[c] = m;
+    const ob = outbox(); Object.values(ob).filter(x => x.c === c).forEach(x => x.next === null ? m.delete(x.id) : m.set(x.id, x.next));   // unsent local changes win
+    DB.cache[c] = m; persist(c);
   })();
   return DB.loading[c];
 }
@@ -45,7 +74,7 @@ function startRealtime(){
     const c = row.coll, id = row.doc_id;
     if (!DB.cache[c] || DB.pending[key(c,id)]) return;
     if (p.eventType === 'DELETE') DB.cache[c].delete(id); else DB.cache[c].set(id, row.data);
-    emit(c, id);
+    persist(c); emit(c, id);
   }).subscribe();
 }
 async function write(c, id, fn){
@@ -53,16 +82,19 @@ async function write(c, id, fn){
   const k = key(c,id), prev = DB.cache[c].get(id), had = DB.cache[c].has(id);
   const next = fn(prev);
   if (next === null) DB.cache[c].delete(id); else DB.cache[c].set(id, next);
-  emit(c, id);
+  emit(c, id); persist(c);
   DB.pending[k] = (DB.pending[k] || 0) + 1;
+  const queue = () => { const ob = outbox(); ob[k] = {c, id, next}; store.set(lsOut(), JSON.stringify(ob)); };
+  if (!navigator.onLine){ queue(); setTimeout(() => { DB.pending[k]--; if (!DB.pending[k]) delete DB.pending[k]; }, 1500); return; }
   try {
     const q = next === null ? sb.from('user_docs').delete().eq('coll', c).eq('doc_id', id)
       : sb.from('user_docs').upsert({user_id: UID, coll: c, doc_id: id, data: next}, {onConflict:'user_id,coll,doc_id'});
     const {error} = await q;
     if (error) throw error;
   } catch(err){
+    if (offline(err)){ queue(); return; }
     if (had) DB.cache[c].set(id, prev); else DB.cache[c].delete(id);
-    emit(c, id);
+    emit(c, id); persist(c);
     throw {code: /aal2|row-level/i.test(err && err.message || '') ? 'not_granted' : 'unavailable', message: err && err.message};
   } finally { setTimeout(() => { DB.pending[k]--; if (!DB.pending[k]) delete DB.pending[k]; }, 1500); }
 }
@@ -261,7 +293,11 @@ async function busy(btn, fn){ if (btn.disabled) return; const t = btn.textConten
 const redirect = () => location.origin + location.pathname;
 
 async function route(){
-  const {data:{session}} = await sb.auth.getSession();
+  let {data:{session}} = await sb.auth.getSession();
+  if (!session && !navigator.onLine){
+    try { const t = JSON.parse(localStorage.getItem('sb-' + new URL(CFG.url).hostname.split('.')[0] + '-auth-token') || 'null'); const s = t && (t.currentSession || t);
+      if (s && s.user && s.user.id && localStorage.getItem('se.db.' + s.user.id + '._root')){ enter(s); addEventListener('online', () => location.reload(), {once:true}); return; } } catch(e){}
+  }
   SESSION = session;
   if (!session){ panel(G.mode === 'up' || G.mode === 'sent' || G.mode === 'reset' ? G.mode : 'in'); return; }
   const {data: aal, error} = await sb.auth.mfa.getAuthenticatorAssuranceLevel();
@@ -298,12 +334,12 @@ function enter(session){
   SESSION = session; UID = session.user.id;
   $g('seGate').hidden = true; document.documentElement.classList.remove('se-locked');
   if (entered) return; entered = true;
-  startRealtime(); readyRes(); wireProfile();
+  startRealtime(); readyRes(); wireProfile(); flush();
 }
 
 sb.auth.onAuthStateChange((ev, session) => {
   if (ev === 'PASSWORD_RECOVERY') RECOVERY = true;
-  if (ev === 'SIGNED_OUT'){ if (entered){ Object.keys(localStorage).filter(k => k.startsWith('se.cal.')).forEach(k => store.del(k)); try { sessionStorage.removeItem('se.gc'); } catch(e){} location.replace(redirect()); } else setTimeout(route, 0); return; }
+  if (ev === 'SIGNED_OUT'){ if (entered){ Object.keys(localStorage).filter(k => /^se\.(cal|db|outbox)\./.test(k)).forEach(k => store.del(k)); try { sessionStorage.removeItem('se.gc'); } catch(e){} location.replace(redirect()); } else setTimeout(route, 0); return; }
   if (ev === 'TOKEN_REFRESHED'){ SESSION = session; return; }
   if (['SIGNED_IN','MFA_CHALLENGE_VERIFIED','INITIAL_SESSION','PASSWORD_RECOVERY','USER_UPDATED'].includes(ev) && !(entered && ev === 'SIGNED_IN')) setTimeout(route, 0);
 });
@@ -343,6 +379,7 @@ function wireGate(){
 
 /* ---------------- profile: live security rows ---------------- */
 async function wireProfile(){
+  if (!navigator.onLine){ addEventListener('online', wireProfile, {once:true}); return; }
   const u = SESSION.user, prov = (u.app_metadata && u.app_metadata.providers) || [u.app_metadata && u.app_metadata.provider];
   const set = (id, t) => { const el = $g(id); if (el) el.textContent = t; };
   set('pfLogin', (u.email || '') + ' · ' + (prov.includes('google') ? 'Google' : 'מייל וסיסמה'));
@@ -371,5 +408,21 @@ async function wireProfile(){
   const out = $g('seSignOut'); if (out) out.onclick = () => sb.auth.signOut();
 }
 
-if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', wireGate); else wireGate();
+/* ---------------- install as an app + offline shell ---------------- */
+if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) navigator.serviceWorker.register('sw.js').catch(() => {});
+let installEv = null;
+const standalone = () => matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+const isIOS = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+function wireInstall(){
+  const row = $g('seInstallRow'), btn = $g('seInstall'); if (!row || !btn) return;
+  row.hidden = standalone() || !(installEv || isIOS);
+  btn.onclick = async () => {
+    if (installEv){ installEv.prompt(); const r = await installEv.userChoice.catch(() => null); installEv = null; if (r && r.outcome === 'accepted') row.hidden = true; return; }
+    $g('seInstallSub').textContent = 'בספארי: לחץ על כפתור השיתוף ובחר "הוסף למסך הבית".'; btn.hidden = true;
+  };
+}
+addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEv = e; wireInstall(); });
+addEventListener('appinstalled', () => { installEv = null; const r = $g('seInstallRow'); if (r) r.hidden = true; });
+
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => { wireGate(); wireInstall(); }); else { wireGate(); wireInstall(); }
 })();

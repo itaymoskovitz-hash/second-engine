@@ -19,7 +19,7 @@ src/gate.html       sign-in screens (email+password, magic link, Google, optiona
 src/config.js       public config: Supabase URL, anon key, googleClientId, googleAuth flag, ai flag
 src/i18n/           English layer: core.js (runtime translator) + dict1-5.py (Hebrew -> English), inject.py merges them into app.html
 build.py            builds docs/index.html from app.html + gate + config + shim
-docs/               the published site (index.html, icon.svg, manifest.webmanifest, .nojekyll)
+docs/               the published site (index.html, sw.js, icons, manifest.webmanifest, .nojekyll); sw.js and icons are hand-written, not built
 ```
 
 Build with `python3 build.py` (reads `src/app.html`; override with `SE_SRC`). After changing a dictionary, run `python3 src/i18n/inject.py` to re-inject into `src/app.html`, then build.
@@ -70,7 +70,7 @@ There is no network to Supabase from a sandbox. Test the UI with Playwright by s
 2. Anthropic key: not set (the owner has no budget for it yet). `ai: false` in config.js hides every AI entry point (`.no-ai` class from shim.js: coach chat, meal photo/estimate, fuel and workout analysis, AI brief refresh, plan import). The coach tab shows the rule-based `localBrief()` and the week card; onboarding skips "do you have a plan?" and builds one with `generatePlan`. To turn AI on: set the `ANTHROPIC_API_KEY` secret, then `ai: true`, rebuild.
 3. Supabase built-in email is rate-limited; before launch, configure custom SMTP.
 4. Finish the English QA pass (some long sentences still translate in fragments). Translate new strings when adding UI.
-5. Offline support (service worker / PWA caching) was discussed, not built.
+5. ~~Offline~~ Done: `docs/sw.js` (network-first for the site, cache-first for versioned CDN/fonts; never caches Supabase/Calendar/AI). shim.js mirrors each loaded collection in localStorage (`se.db.<uid>.<coll>`), queues writes made offline in `se.outbox.<uid>` and flushes on `online`; an offline start with an expired token opens the device copy. Sign-out clears both. Profile has an install row (Android prompt, iPhone instructions). PNG icons + apple-touch-icon in docs/.
 6. Apple sign-in requires a paid Apple developer account; not started.
 7. The owner's own plan lives in his Google Calendar; Calendar is connected and loads it.
 
