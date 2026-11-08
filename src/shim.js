@@ -334,7 +334,7 @@ function enter(session){
   SESSION = session; UID = session.user.id;
   $g('seGate').hidden = true; document.documentElement.classList.remove('se-locked');
   if (entered) return; entered = true;
-  startRealtime(); readyRes(); wireProfile(); flush();
+  startRealtime(); readyRes(); wireProfile(); flush(); wireReminders();
 }
 
 sb.auth.onAuthStateChange((ev, session) => {
@@ -417,7 +417,58 @@ async function wireProfile(){
     location.replace(redirect());
   };
   const others = $g('seOthers'); if (others) others.onclick = async () => { const {error} = await sb.auth.signOut({scope:'others'}); others.textContent = error ? 'נכשל' : 'נותקו'; others.disabled = !error; };
-  const out = $g('seSignOut'); if (out) out.onclick = () => sb.auth.signOut();
+  const out = $g('seSignOut'); if (out) out.onclick = async () => { await rmOff(); sb.auth.signOut(); };   // no more reminders for this device after signing out
+}
+
+/* ---------------- workout reminders (Web Push) ----------------
+   A row in push_subs per browser. The app hands over the next 14 days' workouts (SE.reminderDays);
+   the send-reminders function posts today's one at the chosen hour. */
+const RM = {days: null, sentKey: null, timer: null};
+const rmKey = () => 'se.rm.' + UID;
+const rmState = () => { try { return JSON.parse(store.get(rmKey()) || 'null'); } catch(e){ return null; } };
+const pushOK = () => 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window && !!CFG.vapidPublic;
+const b64u = s => { const p = '='.repeat((4 - s.length % 4) % 4), r = atob((s + p).replace(/-/g, '+').replace(/_/g, '/')); return Uint8Array.from(r, c => c.charCodeAt(0)); };
+const rmLang = () => document.documentElement.lang === 'en' ? 'en' : 'he';
+async function rmSave(hour){
+  const reg = await navigator.serviceWorker.ready;
+  const sub = await reg.pushManager.getSubscription() || await reg.pushManager.subscribe({userVisibleOnly: true, applicationServerKey: b64u(CFG.vapidPublic)});
+  const j = sub.toJSON();
+  const {error} = await sb.from('push_subs').upsert({endpoint: j.endpoint, user_id: UID, p256dh: j.keys.p256dh, auth: j.keys.auth,
+    tz: Intl.DateTimeFormat().resolvedOptions().timeZone || 'Asia/Jerusalem', hour, lang: rmLang(), days: RM.days || {}, updated_at: new Date().toISOString()}, {onConflict: 'endpoint'});
+  if (error) throw error;
+  store.set(rmKey(), JSON.stringify({on: true, hour})); RM.sentKey = JSON.stringify(RM.days || {});
+}
+async function rmOff(){
+  try { const reg = await navigator.serviceWorker.ready; const sub = await reg.pushManager.getSubscription();
+    if (sub){ await sb.from('push_subs').delete().eq('endpoint', sub.endpoint); await sub.unsubscribe(); } } catch(e){}
+  store.del(rmKey());
+}
+window.SE.reminderDays = days => {
+  RM.days = days; const st = rmState(); if (!st || !st.on || !navigator.onLine) return;
+  const k = JSON.stringify(days); if (k === RM.sentKey) return;
+  clearTimeout(RM.timer); RM.timer = setTimeout(() => rmSave(st.hour).catch(() => {}), 2000);
+};
+function wireReminders(){
+  const row = $g('seRmRow'), sw = $g('seRm'), sel = $g('seRmHour'), sub = $g('seRmSub'); if (!row) return;
+  const iosBrowser = isIOS && !standalone();
+  row.hidden = !(pushOK() || iosBrowser);
+  if (row.hidden) return;
+  if (!sel.options.length) for (let h = 5; h <= 21; h++) sel.add(new Option(String(h).padStart(2, '0') + ':00', h));
+  const st = rmState(); sel.value = String(st ? st.hour : 7);
+  const paint = on => { sw.setAttribute('aria-checked', String(on)); sel.disabled = !on; };
+  paint(!!(st && st.on) && pushOK() && Notification.permission === 'granted');
+  if (iosBrowser && !pushOK()){ sw.disabled = true; sel.disabled = true; sub.textContent = 'באייפון התזכורות עובדות אחרי התקנה למסך הבית (שיתוף ← הוסף למסך הבית).'; return; }
+  sw.onclick = async () => {
+    const on = sw.getAttribute('aria-checked') !== 'true'; sw.disabled = true;
+    try {
+      if (on){
+        if (await Notification.requestPermission() !== 'granted'){ sub.textContent = 'הדפדפן חוסם התראות. אפשר לאשר אותן בהגדרות האתר.'; return; }
+        await rmSave(+sel.value); paint(true); sub.textContent = 'נשלח בכל בוקר בשעה שבחרת, עם האימון של היום.';
+      } else { await rmOff(); paint(false); }
+    } catch(e){ sub.textContent = navigator.onLine ? 'לא הצלחתי להפעיל תזכורות. נסה שוב.' : 'צריך חיבור לאינטרנט כדי לשנות את התזכורת.'; }
+    finally { sw.disabled = false; }
+  };
+  sel.onchange = () => { const s2 = rmState(); if (s2 && s2.on) rmSave(+sel.value).catch(() => {}); };
 }
 
 /* ---------------- install as an app + offline shell ---------------- */

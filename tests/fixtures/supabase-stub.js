@@ -12,11 +12,11 @@ window.supabase = {createClient(){
   const prefs = () => ls('T_SCEN') === 'new'
     ? {lang: ls('T_LANG') || 'he', onboarded:false, diet:[]}
     : {lang: ls('T_LANG') || 'he', onboarded:true, planSource:'calendar', weight:72, maxHr:188, restHr:50, pace:'5:45', diet:['vegetarian']};
-  const chain = () => { let coll = ''; const c = {
+  const chain = table => { let coll = ''; const c = {
     select: () => c, eq: (k, v) => { if (k === 'coll') coll = v; return c; },
     range: () => Promise.resolve({data: coll === '_root' ? [{doc_id:'coach', data: prefs()}] : [], error:null}),
-    delete: () => c,
-    upsert: row => { window.__calls.push(['upsert', row.coll, row.doc_id]); return navigator.onLine ? Promise.resolve({error:null}) : Promise.reject(new TypeError('Failed to fetch')); },
+    delete: () => { window.__calls.push(['delete', table]); return c; },
+    upsert: row => { window.__calls.push(table === 'push_subs' ? ['upsert', table, row] : ['upsert', row.coll, row.doc_id]); return navigator.onLine ? Promise.resolve({error:null}) : Promise.reject(new TypeError('Failed to fetch')); },
     then: r => r({data:[], error:null})
   }; return c; };
   const auth = {
