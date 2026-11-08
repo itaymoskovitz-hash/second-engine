@@ -50,6 +50,12 @@ button.pill:hover{color:var(--platinum);border-color:var(--steel)}
 .se-pw{display:flex;gap:8px;flex-wrap:wrap;padding:4px 0 8px}
 .se-pw input{flex:1 1 180px;direction:ltr;text-align:right}
 .se-pw small{flex-basis:100%;color:var(--steel)}
+.se-about{border-top:1px solid var(--line);padding-top:22px;margin-top:6px;display:flex;flex-direction:column;gap:10px}
+.se-about h2{font-size:17px;font-weight:500;margin:0}
+.se-about ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px}
+.se-about li{color:var(--steel);font-size:14px;line-height:1.55;padding-inline-start:16px;position:relative}
+.se-about li::before{content:"";position:absolute;inset-inline-start:0;top:.62em;width:6px;height:6px;border-radius:50%;background:var(--steel)}
+.se-legal a{color:var(--steel);text-underline-offset:3px}
 </style>
 <div class="se-gate" id="seGate" hidden dir="rtl">
   <div class="se-card">
@@ -139,5 +145,15 @@ button.pill:hover{color:var(--platinum);border-color:var(--steel)}
 
     <p class="se-err" id="seErr" role="alert"></p>
     <p class="se-foot">הנתונים שלך מוצפנים בדרך ובשרת, ורק אתה יכול לקרוא אותם.</p>
+    <section class="se-about" aria-labelledby="seAboutH">
+      <h2 id="seAboutH">מה יש באפליקציה</h2>
+      <ul>
+        <li>תוכנית אימונים לריצה ולכוח שנבנית לפי המטרה, הרמה והימים הפנויים שלך, או התוכנית הקיימת שלך מ-Google Calendar.</li>
+        <li>תדריך יומי, צ׳ק-אין מוכנות, סטופר לאינטרוולים ולסטים, ומעקב קילומטרז׳ לנעליים.</li>
+        <li>המלצות תזונה לפי עומס האימון, כולל תכנון דלק למרוץ.</li>
+        <li>עובדת גם בלי אינטרנט, ואפשר להתקין אותה כאפליקציה בטלפון.</li>
+      </ul>
+      <p class="se-foot se-legal"><a href="privacy.html">מדיניות פרטיות</a> · <a href="terms.html">תנאי שימוש</a></p>
+    </section>
   </div>
 </div>

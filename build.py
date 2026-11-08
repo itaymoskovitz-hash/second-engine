@@ -35,7 +35,8 @@ body = rep(body, 'כרגע דרך חשבון Claude שלך', '')
 # profile: install as an app (Android prompt / iPhone instructions)
 body = rep(body, '<div class="row"><span>ייצוא<small>קובץ עם כל הנתונים שלך</small></span><button type="button" class="btn" id="pfExport">הורד קובץ</button></div>',
   '<div class="row"><span>ייצוא<small>קובץ עם כל הנתונים שלך</small></span><button type="button" class="btn" id="pfExport">הורד קובץ</button></div>\n'
-  '      <div class="row" id="seInstallRow" hidden><span>התקנה כאפליקציה<small id="seInstallSub">אייקון במסך הבית, מסך מלא, עובד גם בלי אינטרנט</small></span><button type="button" class="pill ok" id="seInstall">התקן</button></div>')
+  '      <div class="row"><span>פרטיות ותנאים<small>מה נשמר, איפה, ואיך מוחקים</small></span><span class="se-legal"><a href="privacy.html">פרטיות</a> · <a href="terms.html">תנאים</a></span></div>\n'
+'      <div class="row" id="seInstallRow" hidden><span>התקנה כאפליקציה<small id="seInstallSub">אייקון במסך הבית, מסך מלא, עובד גם בלי אינטרנט</small></span><button type="button" class="pill ok" id="seInstall">התקן</button></div>')
 
 # calendar messages for the standalone build
 body = rep(body, "server_not_connected: 'כדי לטעון את כל התוכנית צריך לחבר את Google Calendar ב-claude.ai, בהגדרות ← Connectors.'",
