@@ -57,6 +57,7 @@ title_line = head.split('\n', 1)
 out = ('<!doctype html>\n<html lang="he" dir="rtl">\n<head>\n<meta charset="utf-8">\n'
        '<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">\n'
        '<meta name="theme-color" content="#0E0F11">\n<meta name="referrer" content="strict-origin-when-cross-origin">\n'
+       '<meta name="google-site-verification" content="hnkUqeEIfXfc8PJdXl_8bLH8yVAnS_CCQVpwnNEz0Ms">\n'
        '<meta name="description" content="Second Engine: תוכנית אימונים, יומן ומעקב למי שמשלב ריצה ואימוני כוח. בונה תוכנית לפי מחקר, מתחבר ל-Google Calendar ועובד גם בלי אינטרנט.">\n'
        '<link rel="icon" href="icon.svg" type="image/svg+xml">\n<link rel="apple-touch-icon" href="apple-touch-icon.png">\n<link rel="manifest" href="manifest.webmanifest">\n'
        '<meta name="apple-mobile-web-app-capable" content="yes">\n<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">\n'
