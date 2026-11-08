@@ -22,7 +22,7 @@ build.py            builds docs/index.html from app.html + gate + config + shim
 docs/               the published site (index.html, icon.svg, manifest.webmanifest, .nojekyll)
 ```
 
-`build.py` reads the app from the `SE_SRC` env var, defaulting to `/home/claude/coach.html` (the original working path). In a fresh checkout run `SE_SRC=src/app.html python3 build.py`, or change the default to `src/app.html`. After changing a dictionary, run `src/i18n/inject.py` (adjust its paths to `src/`) to re-inject into app.html, then build.
+Build with `python3 build.py` (reads `src/app.html`; override with `SE_SRC`). After changing a dictionary, run `python3 src/i18n/inject.py` to re-inject into `src/app.html`, then build.
 
 ## How the app talks to the backend
 
@@ -66,13 +66,13 @@ There is no network to Supabase from a sandbox. Test the UI with Playwright by s
 
 ## Open items
 
-1. Google: the owner created the OAuth client. Put its Client ID in `src/config.js` (`googleClientId`), set `googleAuth: true`, rebuild, push. The Google provider must be enabled in Supabase with the client ID + secret. The consent screen is in Testing mode, so only listed test users can sign in until it's verified.
+1. ~~Google~~ Done (Nov 2026): client ID in config.js, `googleAuth: true`, Supabase Google provider on, Calendar API enabled, redirect URLs set. Consent screen is still in Testing mode: only listed test users can sign in. Before launch, submit it for verification (the `calendar.events` scope is sensitive).
 2. Anthropic key: until `ANTHROPIC_API_KEY` is set as an edge-function secret, AI features show "the coach isn't available".
 3. Supabase built-in email is rate-limited; before launch, configure custom SMTP.
 4. Finish the English QA pass (some long sentences still translate in fragments). Translate new strings when adding UI.
 5. Offline support (service worker / PWA caching) was discussed, not built.
 6. Apple sign-in requires a paid Apple developer account; not started.
-7. The owner's own plan lives in his Google Calendar; it loads once Calendar is connected.
+7. The owner's own plan lives in his Google Calendar; Calendar is connected and loads it.
 
 ## Commit rules
 
