@@ -16,4 +16,12 @@ D = {
 "הנתונים שלך שמורים בשרת מאובטח באירופה, ורק אתה יכול לקרוא אותם. עם אימות דו-שלבי, כניסה ממכשיר חדש תדרוש גם קוד מהטלפון.":"Your data is stored on a secure server in Europe, and only you can read it. With two-step verification, signing in on a new device also needs a code from your phone.",
 "קוד מאפליקציית אימות בכל מכשיר חדש":"A code from an authenticator app on every new device",
 "כניסה עם Google":"Sign in with Google",
+"עוד לא מילאת צ׳ק-אין מוכנות היום.":"You haven't done today's readiness check-in yet.",
+"מוכנות #%.":"Readiness #%.",
+"אין אימון בתוכנית":"No workout in the plan",
+"ריצה קלה # ק\"מ":"Easy run # km",
+"ריצה ארוכה # ק\"מ":"Long run # km",
+"ריצת התאוששות # ק\"מ":"Recovery run # km",
+"#×# אינטרוולים":"#×# intervals",
+"#×# בקצב מרתון":"#×# at marathon pace",
 }

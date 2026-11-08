@@ -3,6 +3,7 @@
    so the app code runs unchanged outside claude.ai. Nothing resolves until the user is signed in with 2FA (aal2). */
 (() => {
 const CFG = window.SE_CONFIG;
+if (CFG.ai === false) document.documentElement.classList.add('no-ai');   // hides every AI entry point (see .no-ai in app.html)
 const sb = supabase.createClient(CFG.url, CFG.anonKey, {auth:{persistSession:true, autoRefreshToken:true, detectSessionInUrl:true, flowType:'pkce'}});
 window.SE = {sb};
 const $g = id => document.getElementById(id);
@@ -236,7 +237,7 @@ const downloads = {save: async ({filename, data}) => {
   const a = document.createElement('a'); a.href = url; a.download = filename || 'download'; document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 4000); return {ok: true};
 }};
-const CAPS = {db: () => ({collection, doc: p => { const s = p.split('/'); return collection(s.slice(0, -1).join('/')).doc(s[s.length - 1]); }}), user: () => user, sample: () => sample, mcp: () => mcp, downloads: () => downloads};
+const CAPS = {db: () => ({collection, doc: p => { const s = p.split('/'); return collection(s.slice(0, -1).join('/')).doc(s[s.length - 1]); }}), user: () => user, sample: () => CFG.ai === false ? null : sample, mcp: () => mcp, downloads: () => downloads};
 
 /* ---------------- auth gate ---------------- */
 const HE = {

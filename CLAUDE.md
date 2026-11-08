@@ -16,7 +16,7 @@ The owner communicates in Hebrew. Reply to him in Hebrew. Keep UI titles free of
 src/app.html        the whole app: markup, CSS and JS in one file (source of truth for the UI)
 src/shim.js         implements window.claude.use(name) on top of Supabase, so app.html runs unchanged outside claude.ai
 src/gate.html       sign-in screens (email+password, magic link, Google, optional TOTP 2FA) + their CSS
-src/config.js       public config: Supabase URL, anon key, googleClientId, googleAuth flag
+src/config.js       public config: Supabase URL, anon key, googleClientId, googleAuth flag, ai flag
 src/i18n/           English layer: core.js (runtime translator) + dict1-5.py (Hebrew -> English), inject.py merges them into app.html
 build.py            builds docs/index.html from app.html + gate + config + shim
 docs/               the published site (index.html, icon.svg, manifest.webmanifest, .nojekyll)
@@ -67,7 +67,7 @@ There is no network to Supabase from a sandbox. Test the UI with Playwright by s
 ## Open items
 
 1. ~~Google~~ Done (Nov 2026): client ID in config.js, `googleAuth: true`, Supabase Google provider on, Calendar API enabled, redirect URLs set. Consent screen is still in Testing mode: only listed test users can sign in. Before launch, submit it for verification (the `calendar.events` scope is sensitive).
-2. Anthropic key: until `ANTHROPIC_API_KEY` is set as an edge-function secret, AI features show "the coach isn't available".
+2. Anthropic key: not set (the owner has no budget for it yet). `ai: false` in config.js hides every AI entry point (`.no-ai` class from shim.js: coach chat, meal photo/estimate, fuel and workout analysis, AI brief refresh, plan import). The coach tab shows the rule-based `localBrief()` and the week card; onboarding skips "do you have a plan?" and builds one with `generatePlan`. To turn AI on: set the `ANTHROPIC_API_KEY` secret, then `ai: true`, rebuild.
 3. Supabase built-in email is rate-limited; before launch, configure custom SMTP.
 4. Finish the English QA pass (some long sentences still translate in fragments). Translate new strings when adding UI.
 5. Offline support (service worker / PWA caching) was discussed, not built.
