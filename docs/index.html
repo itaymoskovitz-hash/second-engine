@@ -1492,7 +1492,7 @@ function wireGate(){
     const {error} = await sb.auth.mfa.challengeAndVerify({factorId: G.factor, code: $g('seCode').value.replace(/\s/g,'')}); if (error) throw error; await route(); }); };
   document.querySelectorAll('#seGate [data-go]').forEach(b => b.onclick = () => panel(b.dataset.go));
   document.querySelectorAll('#seGate .se-google').forEach(b => b.onclick = () => busy(b, async () => {
-    const {error} = await sb.auth.signInWithOAuth({provider:'google', options:{redirectTo: redirect()}}); if (error) throw error; }));
+    const {error} = await sb.auth.signInWithOAuth({provider:'google', options:{redirectTo: redirect(), queryParams:{prompt:'select_account'}}}); if (error) throw error; }));
   $g('seMagic').onclick = () => busy($g('seMagic'), async () => {
     const em = $g('seEmail').value.trim(); if (!/.+@.+\..+/.test(em)){ err('כתוב קודם את המייל שלך בשדה למעלה.'); return; }
     const {error} = await sb.auth.signInWithOtp({email: em, options:{emailRedirectTo: redirect(), shouldCreateUser: true}}); if (error) throw error;
