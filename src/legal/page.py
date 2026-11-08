@@ -2,7 +2,7 @@
 """Builds docs/privacy.html and docs/terms.html (Hebrew + English on one page). Run from the repo root."""
 import pathlib
 ROOT = pathlib.Path(__file__).resolve().parents[2]
-MAIL = 'shworkshopsh@gmail.com'
+MAIL = 'itaymoskovitz@gmail.com'
 UPDATED_HE, UPDATED_EN = 'נובמבר 2026', 'November 2026'
 
 CSS = """:root{color-scheme:dark;--ink:#0E0F11;--panel:#16181B;--line:#2A2D31;--platinum:#E9E6E0;--steel:#9A9790;--accent:#7FB4C6}
